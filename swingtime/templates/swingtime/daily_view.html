@@ -1,0 +1,64 @@
+{% extends "swingtime/__base.html" %}
+
+{% load guardian_tags %}
+
+{% block page_breadcrumbs %}
+    <span class="divider">&gt;</span>
+    <a href="{% url 'swingtime-current-month' calendar_slug=location.slug %}">
+        {{ location }}
+    </a>
+
+    <span class="divider">&gt;</span>
+    <a href="{% url 'swingtime-yearly-view' year=day.year calendar_slug=location.slug %}">
+        {{ day|date:"Y" }}
+    </a>
+
+    <span class="divider">&gt;</span>
+        <a href="{% url 'swingtime-monthly-view' year=day.year month=day.month calendar_slug=location.slug %}">
+            {{ day|date:"F" }}
+        </a>
+
+    <span class="divider">&gt;</span>
+    {{ day|date:"j" }}
+    
+{% endblock %}
+
+
+{% block title %}Daily View{% endblock %}
+{% block main_content %}
+{% get_obj_perms request.user for location as "object_perms" %}
+
+    <h3>Daily View &mdash; <a href="{% url 'swingtime-choose-location' %}">{{ location }}</a></h3>
+    <h4>
+        <a href="{% url 'swingtime-daily-view' year=prev_day.year month=prev_day.month day=prev_day.day calendar_slug=location.slug %}">&larr;</a>
+        {{ day|date:"l," }}
+        <a href="{% url 'swingtime-monthly-view' year=day.year month=day.month calendar_slug=location.slug %}">{{ day|date:"N" }}</a>
+        {{ day|date:"jS" }}
+        <a title="View {{ this_month.year}}" href="{% url 'swingtime-yearly-view' year=day.year calendar_slug=location.slug %}">
+            {{ day|date:"Y" }}</a>
+        <a href="{% url 'swingtime-daily-view' year=next_day.year month=next_day.month day=next_day.day calendar_slug=location.slug %}">&rarr;</a>
+    </h4>
+    <table class="calendar">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>{{ location }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tm,cells in timeslots %}
+            <tr>
+                {% if perms.swingtime.book_can_add or 'book_can_add' in object_perms %}
+                <th><a href="{% url 'swingtime-add-event' calendar_slug=location.slug %}?dtstart={{ tm.isoformat }}">{{ tm|date:"P" }}</a></th>
+                {% else %}
+                <th>{{ tm|date:"P" }}</th>
+                {% endif %}
+                {% for cell in cells %}
+                <td{% if cell.event_class %} class="{{ cell.event_class }}"{% endif %}>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

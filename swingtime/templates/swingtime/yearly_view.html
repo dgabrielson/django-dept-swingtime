@@ -1,0 +1,71 @@
+{% extends "swingtime/__base.html" %}
+{% load guardian_tags %}
+
+{% block page_breadcrumbs %}
+    {% url 'swingtime-current-month' calendar_slug=location.slug as url %}
+    {% if url %}
+        <span class="divider">&gt;</span>
+        <a href="{{ url }}">{{ location }}</a>
+    {% endif %}
+    <span class="divider">&gt;</span>
+    {{ year }}
+{% endblock %}
+
+
+{% block title %}Yearly View {{ year }}{% endblock %}
+{% block main_content %}
+{% get_obj_perms request.user for location as "object_perms" %}
+
+    <h3>
+        <a href="{% url 'swingtime-yearly-view' year=last_year calendar_slug=location.slug %}"
+           title="Last Year">&larr;</a>
+        Yearly View {{ year }} &mdash; <a href="{% url 'swingtime-choose-location' %}">{{ location }}</a>
+        <a href="{% url 'swingtime-yearly-view' year=next_year calendar_slug=location.slug %}"
+           title="Next Year">&rarr;</a>
+    </h3>
+
+    {% if by_month %}
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Title</th>
+                <th>Day</th>
+                <th>Start</th>
+                <th>End</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for dt,occurrences in by_month %}
+        <tr class="month-divider">
+            <th rowspan="{{ occurrences|length }}">
+                <a href="{% url 'swingtime-monthly-view' year=dt.year month=dt.month calendar_slug=location.slug %}">
+                    {{ dt|date:"F" }}</a>
+            </th>
+            {% for o in occurrences %}
+                <td>
+                    {% if item.get_absolute_url %}
+                        {% if perms.swingtime.book_can_edit or 'book_can_edit' in object_perms %}
+                            <a href="{{ o.get_absolute_url }}">{{ o.title }}</a>
+                        {% else %}
+                            {{ o.title }}
+                        {% endif %}
+                    {% else %}
+                        {{ o.title }}
+                    {% endif %}
+                </td>
+            <td>{{ o.start_time|date:"M jS - l" }}</td>
+            <td>{{ o.start_time|date:"P" }}</td>
+            <td>{{ o.end_time|date:"P" }}</td>
+        </tr>
+            {% if not forloop.last %}
+        <tr>
+            {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No events occurring in {{ year }}</p>
+    {% endif %}
+{% endblock %}

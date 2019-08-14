@@ -1,0 +1,8 @@
+include LICENSE.txt
+include requirements.txt
+recursive-include swingtime/static *
+recursive-include swingtime/templates *
+
+# added by check_manifest.py
+recursive-include swingtime *.json
+recursive-include swingtime *.po

@@ -1,0 +1,6 @@
+*.mo
+*.egg-info
+*.pyc
+*~
+.DS_Store
+

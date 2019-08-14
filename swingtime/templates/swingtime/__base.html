@@ -1,0 +1,41 @@
+{% extends 'site_base.html' %}
+
+{# ########################################### #}
+
+{% block html_head %}
+{{ block.super }}
+{% block html_head_swingtime_extra %}
+<link href="{{ STATIC_URL }}css/forms.css" rel="stylesheet" type="text/css" />
+<link href="{{ STATIC_URL }}swingtime/css/booking.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+{% endblock %}
+
+{# ########################################### #}
+
+{% block page_title %}Room Booking{% endblock %}
+
+{# ########################################### #}
+
+{% block page_content_header %}Room Booking{% endblock %}
+{% block page_content_body %}
+
+{% block main_content %}
+{% endblock main_content %}
+
+{% block swingtime_extra_content %}{% endblock %}
+{% endblock %}
+
+
+{# ########################################### #}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% block app_breadcrumbs %}
+        <span class="divider">&gt;</span>
+        {% include './includes/app_breadcrumbs.html' %}
+        {% block page_breadcrumbs %}
+        {% endblock %}
+    {% endblock app_breadcrumbs %}
+{% endblock %}
+
+{# ########################################### #}

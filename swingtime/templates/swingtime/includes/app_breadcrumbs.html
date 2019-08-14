@@ -1,0 +1,9 @@
+
+{% url 'swingtime-choose-location' as top_url %}
+{% if top_url %}
+    {% if top_url != request.path %}
+        <a href="{{ top_url }}">Room Schedules</a>
+    {% else %}
+        Room Schedules
+    {% endif %}
+{% endif %}

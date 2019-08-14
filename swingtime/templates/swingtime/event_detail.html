@@ -1,0 +1,112 @@
+{% extends "swingtime/__base.html" %}
+{% load guardian_tags %}
+
+{% block title %}Event: {{ event }}{% endblock %}
+{% block main_content %}
+
+{% get_obj_perms request.user for event.location as "object_perms" %}
+
+    <h3>Event Details</h3>
+
+    {% if perms.swingtime.book_can_edit or 'book_can_edit' in object_perms %}
+    <form action="" method="post">{% csrf_token %}
+   <table>
+        <tfoot>
+            <tr>
+                <td colspan="2">
+                    <input type="submit" name="_update" value="Update" />
+                </td>
+            </tr>
+        </tfoot>
+        <tbody>
+        {% include "swingtime/event_form_part.html" %}
+        </tbody>
+    </table>
+    </form>
+    {% else %}
+    <dl>
+        <dt>Location:</dt>
+        <dd>{{ event.location }}</dd>
+
+        <dt>Description:</dt>
+        <dd>{{ event.description|default:"None" }}</dd>
+
+        {% comment %}
+        <dt>Note(s:)</dt>
+        <dd>
+            {% with event.notes.all as notes %}
+            {% if notes %}
+            <ul>
+                {% for note in notes %}
+                <li>{{ note }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}None
+            {% endif %}
+            {% endwith %}
+        </dd>
+        {% endcomment %}
+
+    </dl>
+    {% endif %}
+
+    {% comment %}
+    <h4>Notes</h4>
+    {% with event.notes.all as notes %}
+    {% if notes %}
+    <ul>
+        {% for note in notes %}
+        <li>{{ note }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>None</p>
+    {% endif %}
+    {% endwith %}
+    {% endcomment %}
+
+    <h4>Occurrences</h4>
+    {% if event.occurrence_set.count %}
+    <ol>
+        {% for o in event.occurrence_set.all %}
+        <li>
+            <a href="{% url 'swingtime-monthly-view' year=o.start_time|date:"Y" month=o.start_time|date:"n" calendar_slug=location.slug %}">[month]</a>
+            <a href="{% url 'swingtime-daily-view' year=o.start_time|date:"Y" month=o.start_time|date:"n" day=o.start_time|date:"j" calendar_slug=location.slug %}">[day]</a>
+            <a href="{% url 'swingtime-occurrence' event_pk=event.id occurrence_pk=o.id calendar_slug=location.slug %}">
+                {{ o.start_time|date:"l, F jS, Y P" }} &ndash;
+                {{ o.end_time|date:"l, F jS, Y P" }}</a>
+
+        </li>
+        {% endfor %}
+    </ol>
+    {% else %}
+    {% endif %}
+
+    {% if perms.swingtime.book_can_add or 'book_can_add' in object_perms %}
+    <h4>Add Occurrences</h4>
+    <form action="" method="post">{% csrf_token %}
+    <table>
+        <tfoot>
+            <tr>
+                <td colspan="2"><input type="submit" name="_add" value="Add" /></td>
+            </tr>
+        </tfoot>
+        <tbody>
+        {% include "swingtime/recurring_form_part.html" %}
+        </tbody>
+    </table>
+    </form>
+    {% endif %}
+{% endblock %}
+
+
+{% block page_breadcrumbs %}
+    <span class="divider">&gt;</span>
+    <a href="{% url 'swingtime-current-month' calendar_slug=location.slug %}">
+        {{ location }}
+    </a>
+
+    <span class="divider">&gt;</span>
+    {{ event.title }}
+
+{% endblock %}

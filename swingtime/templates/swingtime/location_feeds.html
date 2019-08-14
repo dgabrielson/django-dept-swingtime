@@ -1,0 +1,69 @@
+{% extends "swingtime/__base.html" %}
+{% load static %}
+
+{% block title %}Location iCal Feeds{% endblock %}
+
+{% block page_breadcrumbs %}
+    {{ block.super }}
+    <span class="divider">&gt;</span>
+    Calendars
+{% endblock %}
+
+{% block html_head_swingtime_extra %}
+    {{ block.super }}
+    <script src="{% static 'js/clipboard.min.js' %}"></script>
+{% endblock %}
+
+{% block swingtime_extra_content %}
+    <script>
+        new Clipboard('.copy-link-btn');
+    </script>
+{% endblock %}
+
+
+{% block main_content %}
+
+    <h3>Calendars (.ics)</h3>
+
+    <ul class="simple webcal">
+    {% for loc in location_list %}
+       <li>
+           <a href="webcal://{{ current_site.domain }}{% url 'swingtime-webcal' loc.slug %}">
+               {{ loc }}
+           </a>
+           <div class="copy-link">
+               <input id="calendar-{{ loc.pk }}-url" value="{{ request.scheme }}://{{ request.get_host }}{% url 'swingtime-webcal' loc.slug %}" readonly type="text">
+               <span title="Copy to clipboard">
+                   <button data-clipboard-target="#calendar-{{ loc.pk }}-url" class="copy-link-btn" ></button>
+               </span>
+           </div>
+
+       </li>
+    {% endfor %}
+    </ul>
+
+    <h4>Importing Calendars &mdash; Google Calendar</h4>
+        <p>To import a feed into your Google Calendar:</p>
+        <ol>
+            <li> On this page, use the copy to clipboard button to copy the room calendar you want
+            <li> Open up your Google calendar
+            <li> Under Other calendars in the left column, click Add > Add by URL
+            <li> Paste the iCal link into the URL field provided
+            <li> Click the "Add Calendar" button
+            <li> Your calendar should appear under Other Calendars
+        </ol>
+
+    <h4>Importing Calendars &mdash; iCal</h4>
+        <p>To import a feed into iCal:</p>
+        <ol>
+            <li> On this page, use the copy to clipboard button to copy the room calendar you want
+            <li> Open up iCal
+            <li> Under the Calendar menu, choose Subscribe...
+            <li> Paste the iCal link into the URL field provided
+            <li> Click the "Subscribe" button
+            <li> Name your calendar, provide a description (optional) and set your Auto-refresh settings so your calendar is automatically updated with new events added to our central events calendar
+            <li> Click "Ok" when you are finished
+            <li> Your calendar should appear under Subscriptions
+        </ol>
+
+{% endblock %}

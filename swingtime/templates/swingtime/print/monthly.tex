@@ -1,0 +1,67 @@
+{% autoescape off %}{% load latex_helpers %}\documentclass[10pt]{article}
+
+\usepackage{geometry}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{relsize}
+\usepackage[utf8]{inputenc}
+
+\geometry{letterpaper}
+\geometry{margin=0.25in}
+% PDF page size fixes
+\setlength{\pdfpagewidth}{\paperwidth}
+\setlength{\pdfpageheight}{\paperheight}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\parindent}{0.0em}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\begin{center}
+    {\LARGE \bf
+        {{ location }} ---
+        {{ this_month|date:"F Y" }}
+    }
+\end{center}
+
+
+
+\begin{longtable}{|p{0.12\textwidth}|p{0.12\textwidth}|p{0.12\textwidth}|p{0.12\textwidth}|p{0.12\textwidth}|p{0.12\textwidth}|p{0.12\textwidth}|}
+\hline
+Sunday & Monday & Tuesday & Wednesday & Thursday & Friday & Saturday \\
+\hline
+\endhead
+\hline
+\endfoot
+{% for row in calendar %}%
+    {% for day,items in row  %}%
+    {% if day %}%
+        {\large \bf {{ day }} } \newline
+        {% if items %}%
+            {\raggedright \footnotesize
+            {% for item in items %}
+                \hangindent=0.25ex
+                { \bf {{ item.start_time|time:"g:i" }} -- {{ item.end_time|time:"g:i" }} } \newline {{ item.title|latex_safe }}
+            {% endfor %}
+            }
+        {% else %}%
+            \rule{0pt}{1in}
+        {% endif %}%
+    {% endif %}%
+    {% if forloop.last %}%
+    \\
+    {% else %}%
+    &
+    {% endif %}%
+    {% endfor %}%
+{% if not forloop.last %}%
+    \hline
+{% endif %}%
+{% endfor %}%
+
+\end{longtable}
+
+
+\end{document}
+{% endautoescape %}

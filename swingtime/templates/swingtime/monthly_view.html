@@ -1,0 +1,102 @@
+{% extends "swingtime/__base.html" %}
+{% load guardian_tags %}
+
+{% block html_head %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/twoColumn.css">
+{% endblock %}
+
+{% block page_main_classes %}col-lg-10{% endblock %}
+
+{% block page_breadcrumbs %}
+    {% url 'swingtime-current-month' calendar_slug=location.slug as url %}
+    {% if url %}
+        <span class="divider">&gt;</span>
+        {% if url != request.path %}
+            <a href="{{ url }}">{{ location }}</a>
+            {% url 'swingtime-yearly-view' year=this_month.year calendar_slug=location.slug as year_url %}
+            {% if year_url %}
+                <span class="divider">&gt;</span>
+                <a href="{{ year_url }}">{{ this_month|date:"Y" }}</a>
+                {% url 'swingtime-monthly-view' year=this_month.year month=this_month.month calendar_slug=location.slug as month_url %}
+                {% if month_url %}
+                    <span class="divider">&gt;</span>
+                    {% if month_url != request.path %}
+                        <a href="{{ month_url }}">{{ this_month|date:"F" }}</a>
+                    {% else %}
+                        {{ this_month|date:"F" }}
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% else %}
+            {{ location }}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block title %}Monthly View{% endblock %}
+{% block main_content %}
+{% get_obj_perms request.user for location as "object_perms" %}
+
+    <h3>Monthly View &mdash; <a href="{% url 'swingtime-choose-location' %}">{{ location }}</a></h3>
+    <h4>
+        <a href="{% url 'swingtime-monthly-view' year=last_month.year month=last_month.month calendar_slug=location.slug %}"
+           title="Last Month">&larr;</a>
+        {{ this_month|date:"F" }}
+        <a title="View {{ this_month.year}}" href="{% url 'swingtime-yearly-view' year=this_month.year calendar_slug=location.slug %}">
+            {{ this_month|date:"Y" }}</a>
+        <a href="{% url 'swingtime-monthly-view' year=next_month.year month=next_month.month calendar_slug=location.slug %}"
+           title="Next Month">&rarr;</a>
+    </h4>
+
+    <p>Mouse over an event to see the scheduled time.
+       Click an event to edit.
+    </p>
+
+    <table class="month-view">
+        <thead>
+            <tr>
+                <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in calendar %}
+            <tr>
+                {% for day,items in row  %}
+                <td{% if this_month.year == today.year and this_month.month == today.month and day == today.day  %} class="today"{% endif %}>
+                {% if day %}
+                    <div class="day-ordinal">
+                        <a href="{% url 'swingtime-daily-view' year=this_month.year month=this_month.month day=day calendar_slug=location.slug %}">{{ day }}</a>
+                    </div>
+                    {% if items %}
+                    <ul>
+                        {% for item in items %}
+                        <li>
+                            <span class="event_times" title="{{ item.start_time|time }} – {{ item.end_time|time }}">
+                            {% if item.get_absolute_url %}
+                                {% if perms.swingtime.book_can_edit or 'book_can_edit' in object_perms %}
+                                <a href="{{ item.get_absolute_url }}">
+                                    {{ item.title }}</a>
+                                {% else %}
+                                    {{ item.title }}
+                                {% endif %}
+                            {% else %}
+                                {{ item.title }}
+                            {% endif %}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>
+        <a href="{% url 'swingtime-month-print' room_slug=location.slug year=this_month.year month=this_month.month %}">
+            &rarr; PDF for this month</a>
+    </p>
+{% endblock %}

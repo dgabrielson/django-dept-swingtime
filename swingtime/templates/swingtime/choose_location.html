@@ -1,0 +1,22 @@
+{% extends "swingtime/__base.html" %}
+
+{% block title %}Choose a Calendar{% endblock %}
+
+{% block main_content %}
+    <h3>Choose a Calendar</h3>
+    {% block course_location %}
+            <ul class="simple webcal">
+            {% for loc in location_list %}
+                <li>
+                    <a href="{{ loc.get_absolute_url }}">
+                        {{ loc }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endblock %}
+
+    <a href="{% url 'swingtime-calendar-feeds' %}">Calendar feeds</a>
+    are also available.
+
+{% endblock %}

@@ -1,0 +1,6 @@
+vobject
+python-dateutil
+
+django-dept-directory
+django-webcal
+django-latex
